@@ -96,16 +96,6 @@ class Renderer(object):
                                                   cx=self.camera_center[0], cy=self.camera_center[1])
         scene.add(camera, pose=np.eye(4))
 
-        # Create light source
-        light = pyrender.DirectionalLight(color=[1.0, 1.0, 1.0], intensity=3.0)
-        # for DirectionalLight, only rotation matters
-        light_pose = trimesh.transformations.rotation_matrix(np.radians(-45), [1, 0, 0])
-        # scene.add(light, pose=light_pose)
-        light_pose = trimesh.transformations.rotation_matrix(np.radians(45), [0, 1, 0])
-        # scene.add(light, pose=light_pose)
-        # light = pyrender.PointLight(intensity = 500)
-        # scene.add(light,)
-
         # Need to flip x-axis
         rot = trimesh.transformations.rotation_matrix(np.radians(180), [1, 0, 0])
         # multiple person
