@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 from glob import glob
 import matplotlib.pyplot as plt
-from renderer_pyrd import Renderer
+from renderer_pyrd_nearest_n import Renderer
 from bedlam_data.joint_names import Body, JOINT_NAMES
 
 IMG_FORMAT = '.png'
