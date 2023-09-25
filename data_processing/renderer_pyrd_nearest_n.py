@@ -107,7 +107,7 @@ class Renderer(object):
 
         with open("bedlam_data/body_models/smplx/models/smplx/smplx_uv_meshcapade.obj", "r") as f:
             x = trimesh.exchange.obj.load_obj(f)
-            print(x.keys())
+            # print(x.keys())
 
         # for every person in the scene
         for n in range(num_people):
@@ -123,7 +123,9 @@ class Renderer(object):
             if apply_texture:
                 texture_visuals = TextureVisuals(uv=uv, image=texture_image, material=material)
                 colors = texture_visuals.material.to_color(uv)
+                # print(np.unique(colors, return_index=True))
                 face_colors = vertex_to_face_color(colors, new_faces, nearest_neighbor=True)
+                face_colors[..., 1] = n+1
                 mesh.visual = trimesh.visual.color.ColorVisuals(mesh=mesh, face_colors=face_colors)
             else:
 
