@@ -1,17 +1,13 @@
 import os
-import torch
+import time
 import pickle
 import csv
 import argparse
-import numpy as np
 import pandas as pd
 from glob import glob
-import matplotlib.pyplot as plt
-# from renderer_pyrd import Renderer
-from renderer_pyrd_nearest_n import Renderer
 from multiprocessing.pool import Pool
 from tqdm import tqdm
-from utils_load_data import get_data, process_scenes
+from utils_load_data import get_data, process_scenes, parallel_process_scenes
 from utils_smplx import get_smplx_models
 import ipdb
 
@@ -56,5 +52,21 @@ if __name__ == '__main__':
 
         scenes = get_data(csv_data, cam_csv_base, gt_smplx_folder, image_folder_base, output_folder, fps, scene_name)
 
-    for scene in scenes:
-        process_scenes(scene, smplx_models, CLIFF_SCALE_FACTOR_BBOX, downsample_mat)
+
+    smplx_models_list = [smplx_models for i in range(len(scenes))]
+    scale_factor = [CLIFF_SCALE_FACTOR_BBOX for i in range(len(scenes))]
+    downsample_mat_list = [downsample_mat for i in range(len(scenes))]
+    args_parallel = list(zip(scenes, smplx_models_list, scale_factor, downsample_mat_list))
+
+    parallel = True
+
+    s_time = time.time()
+    if parallel:
+        print("total number of cpus: ", os.cpu_count())
+        with Pool(os.cpu_count()) as pool:
+            pool.map(parallel_process_scenes, args_parallel)
+    else:
+        for scene in scenes:
+            process_scenes(scene, smplx_models, CLIFF_SCALE_FACTOR_BBOX, downsample_mat)
+
+    print(f"total time taken: {time.time() - s_time}, for a total of {len(scenes)}")
