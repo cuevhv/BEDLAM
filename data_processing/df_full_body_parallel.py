@@ -7,8 +7,9 @@ import pandas as pd
 from glob import glob
 from multiprocessing.pool import Pool
 from tqdm import tqdm
-from utils_load_data import get_data, process_scenes, parallel_process_scenes
+from utils_load_data import get_data, process_scenes, parallel_process_scenes, parallel_process_scenes2
 from utils_smplx import get_smplx_models
+import concurrent.futures
 import ipdb
 
 CLIFF_SCALE_FACTOR_BBOX = 1.2
@@ -63,8 +64,10 @@ if __name__ == '__main__':
     s_time = time.time()
     if parallel:
         print("total number of cpus: ", os.cpu_count())
-        with Pool(os.cpu_count()) as pool:
-            pool.map(parallel_process_scenes, args_parallel)
+        # for scene in scenes:
+            # process_scenes(scene, smplx_models, CLIFF_SCALE_FACTOR_BBOX, downsample_mat, parallel=True)
+        with concurrent.futures.ProcessPoolExecutor(os.cpu_count()//2) as pool:
+            pool.map(parallel_process_scenes2, args_parallel)
     else:
         for scene in scenes:
             process_scenes(scene, smplx_models, CLIFF_SCALE_FACTOR_BBOX, downsample_mat)
