@@ -1,3 +1,6 @@
+""" python df_full_body_parallel.py --img_folder /media/hcuevas/7E602496602456E5/temp \
+    --output_folder /media/hcuevas/7E602496602456E5/temp/temp/
+"""
 import os
 import time
 import pickle
@@ -50,7 +53,6 @@ if __name__ == '__main__':
         csv_data = pd.read_csv(csv_path)
         csv_data = csv_data.to_dict('list')
         cam_csv_base = os.path.join(base_folder, 'ground_truth/camera')
-
         scenes = get_data(csv_data, cam_csv_base, gt_smplx_folder, image_folder_base, output_folder, fps, scene_name)
 
 
@@ -63,10 +65,9 @@ if __name__ == '__main__':
 
     s_time = time.time()
     if parallel:
-        print("total number of cpus: ", os.cpu_count())
-        # for scene in scenes:
-            # process_scenes(scene, smplx_models, CLIFF_SCALE_FACTOR_BBOX, downsample_mat, parallel=True)
-        with concurrent.futures.ProcessPoolExecutor(os.cpu_count()//2) as pool:
+        cpus = 6  # os.cpu_count()
+        print("total number of cpus: ", cpus)
+        with concurrent.futures.ProcessPoolExecutor(cpus) as pool:
             pool.map(parallel_process_scenes2, args_parallel)
     else:
         for scene in scenes:
