@@ -82,6 +82,8 @@ def get_data(csv_data, cam_csv_base, gt_smplx_folder, image_folder_base, output_
         else:
             continue
 
+    if len(scene_data) != 0:
+        scenes.append(scene_data)  # appends the last sequence
     return scenes
 
 
