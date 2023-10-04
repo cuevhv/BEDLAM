@@ -77,6 +77,7 @@ def get_data(csv_data, cam_csv_base, gt_smplx_folder, image_folder_base, output_
             body_data["person_idx"] = str(person_idx).zfill(2)
             body_data["output_dir"] = output_folder
             body_data["fps"] = fps
+            body_data["race"] = comment.split(';')[1].split("_")[3]
             scene_data["bodies"].append(body_data)
             person_idx += 1
         else:
@@ -106,7 +107,7 @@ def process_scenes(scene_data, smplx_models, scale_factor, downsample_mat, paral
                     smplx_param_ind = img_idx*5+body_data["start_frame"]
                     cam_ind = img_idx
                 else:
-                    smplx_param_ind = img_idx+body_data["start_frame"]
+                    smplx_param_ind = img_idx*5+body_data["start_frame"]
                     cam_ind = img_idx
 
                 if smplx_param_ind > body_data['poses'].shape[0]:
@@ -197,6 +198,7 @@ def process_scenes(scene_data, smplx_models, scale_factor, downsample_mat, paral
                     motion_info=motion_info,
                     sub=body_data["person_id"],
                     person_idx=body_data["person_idx"],
+                    race=body_data["race"],
                 )
 
             verts_bodies = np.array(verts_bodies)
@@ -224,7 +226,7 @@ def parallel_process_scenes(args):
                 smplx_param_ind = img_idx*5+body_data["start_frame"]
                 cam_ind = img_idx
             else:
-                smplx_param_ind = img_idx+body_data["start_frame"]
+                smplx_param_ind = img_idx*5+body_data["start_frame"]
                 cam_ind = img_idx
 
             if smplx_param_ind > body_data['poses'].shape[0]:
@@ -331,8 +333,8 @@ def parallel_process_scenes2(args):
     print(scene_data["bodies"][0]["image_folder"])
 
     all_images = sorted(glob(os.path.join(scene_data["bodies"][0]["image_folder"], '*')))
-
-    with Pool(os.cpu_count()) as pool:
+    cpus = os.cpu_count()
+    with Pool(cpus) as pool:
         pool.map(parallel_process_frames, [(img_idx, image_path, scene_data, smplx_models, scale_factor, downsample_mat) for img_idx, image_path in enumerate(all_images)])
 
 
@@ -349,7 +351,7 @@ def parallel_process_frames(args):
             smplx_param_ind = img_idx*5+body_data["start_frame"]
             cam_ind = img_idx
         else:
-            smplx_param_ind = img_idx+body_data["start_frame"]
+            smplx_param_ind = img_idx*5+body_data["start_frame"]  # change here
             cam_ind = img_idx
 
         if smplx_param_ind > body_data['poses'].shape[0]:
@@ -399,12 +401,12 @@ def parallel_process_frames(args):
 
         center, scale, num_vis_joints, bbox = get_bbox_valid(joints2d[:22], rescale=scale_factor,
                                                                 img_width=scene_data["img_w"], img_height=scene_data["img_h"])
-        if center[0] < 0 or center[1] < 0 or scale <= 0:
-            continue
+        # if center[0] < 0 or center[1] < 0 or scale <= 0:
+        #     continue
 
         #visualize_crop(image_path, center, scale, torch.tensor(verts_cam2) , cam_int[0][0], smplx_model_male.faces)
-        if num_vis_joints < 12:
-            continue
+        # if num_vis_joints < 12:
+        #     continue
 
         verts_cam2 = vertices3d.detach().cpu().numpy() + cam_trans
         verts_bodies.append(verts_cam2)
@@ -440,6 +442,7 @@ def parallel_process_frames(args):
             motion_info=motion_info,
             sub=body_data["person_id"],
             person_idx=body_data["person_idx"],
+            race=body_data["race"],
             )
 
     verts_bodies = np.array(verts_bodies)
