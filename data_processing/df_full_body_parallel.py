@@ -22,6 +22,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--img_folder', type=str, default='bedlam_data/images')
     parser.add_argument('--output_folder', type=str, default='bedlam_data/processed_labels')
+    parser.add_argument('--bedlam_scene_csv', type=str, default='bedlam_scene.csv')
     parser.add_argument('--smplx_gt_folder', type=str, default='bedlam_data/smplx_gt/neutral_ground_truth_motioninfo')
     parser.add_argument('--fps', type=int, default=6, help='6/30 fps output. With 6fps then every 5th frame is stored')
 
@@ -34,7 +35,8 @@ if __name__ == '__main__':
     gt_smplx_folder = args.smplx_gt_folder
     fps = args.fps
 
-    image_folders = csv.reader(open('bedlam_scene_test.csv', 'r')) # File to parse folders
+    #image_folders = csv.reader(open('bedlam_scene_test.csv', 'r')) # File to parse folders
+    image_folders = csv.reader(open(args.bedlam_scene_csv, 'r')) # File to parse folders
     next(image_folders)  # Skip header
     image_dict, npz_dict = {}, {}
 
@@ -61,7 +63,7 @@ if __name__ == '__main__':
     downsample_mat_list = [downsample_mat for i in range(len(scenes))]
     args_parallel = list(zip(scenes, smplx_models_list, scale_factor, downsample_mat_list))
 
-    parallel = True
+    parallel = False
 
     s_time = time.time()
     if parallel:
