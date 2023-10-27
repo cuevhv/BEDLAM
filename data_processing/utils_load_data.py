@@ -157,18 +157,19 @@ def process_scenes(scene_data, smplx_models, scale_factor, downsample_mat, paral
 
                 center, scale, num_vis_joints, bbox = get_bbox_valid(joints2d[:22], rescale=scale_factor,
                                                                     img_width=scene_data["img_w"], img_height=scene_data["img_h"])
-                if center[0] < 0 or center[1] < 0 or scale <= 0:
-                    continue
+                # if center[0] < 0 or center[1] < 0 or scale <= 0:
+                #     continue
 
                 #visualize_crop(image_path, center, scale, torch.tensor(verts_cam2) , cam_int[0][0], smplx_model_male.faces)
-                if num_vis_joints < 12:
-                    continue
+                # if num_vis_joints < 12:
+                #     continue
 
                 verts_cam2 = vertices3d.detach().cpu().numpy() + cam_trans
                 verts_bodies.append(verts_cam2)
 
 
-                out_img_dir = os.path.join(body_data["output_dir"], image_path.split('/')[-4])
+                out_img_dir = os.path.join(body_data["output_dir"], image_path.split('/')[-4],
+                                           image_path.split('/')[-2])
                 os.makedirs(out_img_dir, exist_ok=True)
                 seq_fn = os.path.normpath(image_path).split(os.sep)[-2]
 
@@ -276,18 +277,19 @@ def parallel_process_scenes(args):
 
             center, scale, num_vis_joints, bbox = get_bbox_valid(joints2d[:22], rescale=scale_factor,
                                                                  img_width=scene_data["img_w"], img_height=scene_data["img_h"])
-            if center[0] < 0 or center[1] < 0 or scale <= 0:
-                continue
+            # if center[0] < 0 or center[1] < 0 or scale <= 0:
+            #     continue
 
-            #visualize_crop(image_path, center, scale, torch.tensor(verts_cam2) , cam_int[0][0], smplx_model_male.faces)
-            if num_vis_joints < 12:
-                continue
+            # #visualize_crop(image_path, center, scale, torch.tensor(verts_cam2) , cam_int[0][0], smplx_model_male.faces)
+            # if num_vis_joints < 12:
+            #     continue
 
             verts_cam2 = vertices3d.detach().cpu().numpy() + cam_trans
             verts_bodies.append(verts_cam2)
 
 
-            out_img_dir = os.path.join(body_data["output_dir"], image_path.split('/')[-4])
+            out_img_dir = os.path.join(body_data["output_dir"], image_path.split('/')[-4],
+                                           image_path.split('/')[-2])
             os.makedirs(out_img_dir, exist_ok=True)
             seq_fn = os.path.normpath(image_path).split(os.sep)[-2]
 
@@ -412,7 +414,8 @@ def parallel_process_frames(args):
         verts_bodies.append(verts_cam2)
 
 
-        out_img_dir = os.path.join(body_data["output_dir"], image_path.split('/')[-4])
+        out_img_dir = os.path.join(body_data["output_dir"], image_path.split('/')[-4],
+                                           image_path.split('/')[-2])
         os.makedirs(out_img_dir, exist_ok=True)
         seq_fn = os.path.normpath(image_path).split(os.sep)[-2]
 
