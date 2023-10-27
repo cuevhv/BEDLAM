@@ -110,7 +110,6 @@ class Renderer(object):
         with open("bedlam_data/body_models/smplx/models/smplx/smplx_uv_meshcapade.obj", "r") as f:
             x = trimesh.exchange.obj.load_obj(f)
             # print(x.keys())
-        print("end of loading image", time.time() - time_s)
 
         # for every person in the scene
         for n in range(num_people):
@@ -121,7 +120,7 @@ class Renderer(object):
 
             time_s = time.time()
             new_verts, new_faces = fix_mesh_shape(verts[n], uv, self.faces, uv2d)
-            print("fix mesh shape", time.time() - time_s)
+
             mesh = trimesh.Trimesh(new_verts, new_faces, process=False,)
 
             apply_texture = True
@@ -133,7 +132,7 @@ class Renderer(object):
                 face_colors = vertex_to_face_color(colors, new_faces, nearest_neighbor=True)
                 face_colors[..., 1] = n+1
                 mesh.visual = trimesh.visual.color.ColorVisuals(mesh=mesh, face_colors=face_colors)
-                print("apply texture", time.time() - time_s)
+
             else:
 
                 if self.same_mesh_color:
@@ -158,7 +157,7 @@ class Renderer(object):
         time_s = time.time()
         color_rgba, depth_map = self.renderer.render(scene, flags=pyrender.RenderFlags.FLAT)
         self.renderer.delete()
-        print("time to render using pyrender: ", time.time() - time_s)
+
         color_rgb = color_rgba[:, :, :3]
         if bg_img_rgb is None:
             return color_rgb
