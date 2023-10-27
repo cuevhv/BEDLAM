@@ -1,13 +1,13 @@
 executable = condor_run.sh
 arguments = $(MyArg)
-experiment = gen_bedlam
+experiment = save_bedlam_metadata
 error = logs/test_$(experiment).$(Process).err
 output = logs/test_$(experiment).$(Process).out
 log = logs/test_$(experiment).$(Process).log
-request_memory = 128000 
-request_cpus = 16
+request_memory = 64000
+request_cpus = 8
 request_gpus = 1
-requirements = (CUDACapability >= 8)
+requirements = (CUDACapability < 8)
 
 max_materialize = 2000
 queue MyArg from condor_args.txt
