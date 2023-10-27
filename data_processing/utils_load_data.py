@@ -104,10 +104,10 @@ def process_scenes(scene_data, smplx_models, scale_factor, downsample_mat, paral
                 if scene_data["fps"] == 6:
                     if img_idx % 5 != 0:
                         continue
-                    smplx_param_ind = img_idx*5+body_data["start_frame"]
+                    smplx_param_ind = img_idx*1+body_data["start_frame"]
                     cam_ind = img_idx
                 else:
-                    smplx_param_ind = img_idx*5+body_data["start_frame"]
+                    smplx_param_ind = img_idx*1+body_data["start_frame"]
                     cam_ind = img_idx
 
                 if smplx_param_ind > body_data['poses'].shape[0]:
@@ -223,10 +223,10 @@ def parallel_process_scenes(args):
             if scene_data["fps"] == 6:
                 if img_idx % 5 != 0:
                     continue
-                smplx_param_ind = img_idx*5+body_data["start_frame"]
+                smplx_param_ind = img_idx*1+body_data["start_frame"]
                 cam_ind = img_idx
             else:
-                smplx_param_ind = img_idx*5+body_data["start_frame"]
+                smplx_param_ind = img_idx*1+body_data["start_frame"]
                 cam_ind = img_idx
 
             if smplx_param_ind > body_data['poses'].shape[0]:
@@ -348,10 +348,10 @@ def parallel_process_frames(args):
         if scene_data["fps"] == 6:
             if img_idx % 5 != 0:
                 continue
-            smplx_param_ind = img_idx*5+body_data["start_frame"]
+            smplx_param_ind = img_idx*1+body_data["start_frame"]
             cam_ind = img_idx
         else:
-            smplx_param_ind = img_idx*5+body_data["start_frame"]  # change here
+            smplx_param_ind = img_idx*1+body_data["start_frame"]  # change here
             cam_ind = img_idx
 
         if smplx_param_ind > body_data['poses'].shape[0]:
