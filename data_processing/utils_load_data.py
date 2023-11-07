@@ -78,6 +78,9 @@ def get_data(csv_data, cam_csv_base, gt_smplx_folder, image_folder_base, output_
             body_data["output_dir"] = output_folder
             body_data["fps"] = fps
             body_data["race"] = comment.split(';')[1].split("_")[3]
+            
+            high_bmi_texture_name = comment.split("texture_clothing_overlay=")
+            body_data["hbmi_texture"] = high_bmi_texture_name[-1] if len(high_bmi_texture_name) == 2 else None
             scene_data["bodies"].append(body_data)
             person_idx += 1
         else:
@@ -97,8 +100,9 @@ def process_scenes(scene_data, smplx_models, scale_factor, downsample_mat, paral
             pool.map(parallel_process_frames, [(img_idx, image_path, scene_data, smplx_models, scale_factor, downsample_mat) for img_idx, image_path in enumerate(all_images)])
 
     else:
-        for img_idx, image_path in (enumerate(all_images)):
+        for img_idx, image_path in tqdm(enumerate(all_images), total=len(all_images)):
             verts_bodies = []
+            hbmi_textures = []
             for body_data in scene_data["bodies"]:
                 # Saving every 5th frame
                 if scene_data["fps"] == 6:
@@ -166,6 +170,7 @@ def process_scenes(scene_data, smplx_models, scale_factor, downsample_mat, paral
 
                 verts_cam2 = vertices3d.detach().cpu().numpy() + cam_trans
                 verts_bodies.append(verts_cam2)
+                hbmi_textures.append(body_data["hbmi_texture"])
 
 
                 out_img_dir = os.path.join(body_data["output_dir"], image_path.split('/')[-4],
@@ -173,41 +178,41 @@ def process_scenes(scene_data, smplx_models, scale_factor, downsample_mat, paral
                 os.makedirs(out_img_dir, exist_ok=True)
                 seq_fn = os.path.normpath(image_path).split(os.sep)[-2]
 
-                visualize(image_path, verts_cam2[None, ], cam_int[0][0],
-                        smplx_models["male"].faces, body_data["person_idx"],
-                        out_img_dir, scene_data["rotate_flag"])
+                #visualize(image_path, verts_cam2[None, ], cam_int[0][0],
+                #        smplx_models["male"].faces, body_data["person_idx"],
+                #        out_img_dir, scene_data["rotate_flag"], hbmi_texture=[body_data["hbmi_texture"]])
                 # visualize_2d(image_path, joints2d)
 
-                npz_name = os.path.basename(image_path).replace(".png", f"_{body_data['person_idx']}.npz")
-                np.savez(
-                    os.path.join(out_img_dir, npz_name),
-                    imgname=os.path.join(seq_fn, os.path.basename(image_path)),
-                    center=center,
-                    scale=scale,
-                    pose_cam=pose_cam,
-                    pose_world=pose_world,
-                    shape=beta,
-                    trans_cam=c_trans,
-                    trans_world=w_trans,
-                    cam_int=cam_int,
-                    cam_ext=cam_ext_,
-                    gender=body_data["gender_sub"],
-                    vertices2d=proj_verts,
-                    joints2d=joints2d,
-                    vertices3d=verts_cam2, #vertices3d.detach().cpu().numpy(),
-                    joints3d=joints3d.detach().cpu().numpy(),
-                    motion_info=motion_info,
-                    sub=body_data["person_id"],
-                    person_idx=body_data["person_idx"],
-                    race=body_data["race"],
-                )
+                #npz_name = os.path.basename(image_path).replace(".png", f"_{body_data['person_idx']}.npz")
+                #np.savez(
+                #    os.path.join(out_img_dir, npz_name),
+                #    imgname=os.path.join(seq_fn, os.path.basename(image_path)),
+                #    center=center,
+                #    scale=scale,
+                #    pose_cam=pose_cam,
+                #    pose_world=pose_world,
+                #    shape=beta,
+                #    trans_cam=c_trans,
+                #    trans_world=w_trans,
+                #    cam_int=cam_int,
+                #    cam_ext=cam_ext_,
+                #    gender=body_data["gender_sub"],
+                #    vertices2d=proj_verts,
+                #    joints2d=joints2d,
+                #    vertices3d=verts_cam2, #vertices3d.detach().cpu().numpy(),
+                #    joints3d=joints3d.detach().cpu().numpy(),
+                #    motion_info=motion_info,
+                #    sub=body_data["person_id"],
+                #    person_idx=body_data["person_idx"],
+                #    race=body_data["race"],
+                #)
 
             verts_bodies = np.array(verts_bodies)
 
             if verts_bodies.size:
                 visualize(image_path, verts_bodies, cam_int[0][0],
                             smplx_models["male"].faces, "all",
-                            out_img_dir, scene_data["rotate_flag"])
+                            out_img_dir, scene_data["rotate_flag"], hbmi_textures)
 
 
 

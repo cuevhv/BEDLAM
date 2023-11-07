@@ -89,7 +89,7 @@ class Renderer(object):
         self.faces = faces
         self.same_mesh_color = same_mesh_color
 
-    def render_front_view(self, verts, bg_img_rgb=None, bg_color=(0, 0, 0, 0)):
+    def render_front_view(self, verts, bg_img_rgb=None, bg_color=(0, 0, 0, 0), hbmi_texture=None):
         # Create a scene for each image and render all meshes
         scene = pyrender.Scene(bg_color=bg_color, ambient_light=np.ones(3) * 1)
         # Create camera. Camera will always be at [0,0,0]
@@ -125,6 +125,10 @@ class Renderer(object):
 
             apply_texture = True
             if apply_texture:
+                if hbmi_texture[n] is not None:
+                    main_path = "/ps/archive/bedlam/render/textures/smplx_textures_clothing_2048_20220905a"
+                    texture_image = Image.open(os.path.join(main_path, hbmi_texture[n])+".png").split()[-1].convert("RGB")
+                material = SimpleMaterial(image=texture_image, diffuse=[1.0, 1.0, 1.0, 1.0])
                 time_s = time.time()
                 texture_visuals = TextureVisuals(uv=uv, image=texture_image, material=material)
                 colors = texture_visuals.material.to_color(uv)

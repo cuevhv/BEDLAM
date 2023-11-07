@@ -6,7 +6,7 @@ from renderer_pyrd_nearest_n import Renderer
 
 
 def visualize(image_path, verts, focal_length, smpl_faces, person_idx,
-              output_dir, rotate_flag=False):
+              output_dir, rotate_flag=False, hbmi_texture=None):
     img = cv2.imread(image_path)
     if rotate_flag:
         img = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
@@ -16,7 +16,7 @@ def visualize(image_path, verts, focal_length, smpl_faces, person_idx,
                         faces=smpl_faces)
     front_view = renderer.render_front_view(verts,
                                             # bg_img_rgb=img[:, :, ::-1].copy()
-                                            )
+                                            hbmi_texture=hbmi_texture)
 
     img_name = os.path.basename(image_path).replace(".png", f"_{person_idx}.png")
     cv2.imwrite(os.path.join(output_dir, img_name), front_view[:, :, ::-1])
