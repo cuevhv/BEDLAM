@@ -3,6 +3,7 @@
 """
 import os
 import time
+import numpy as np
 import pickle
 import csv
 import argparse
@@ -25,6 +26,8 @@ if __name__ == '__main__':
     parser.add_argument('--bedlam_scene_csv', type=str, default='bedlam_scene.csv')
     parser.add_argument('--smplx_gt_folder', type=str, default='bedlam_data/smplx_gt/neutral_ground_truth_motioninfo')
     parser.add_argument('--fps', type=int, default=6, help='6/30 fps output. With 6fps then every 5th frame is stored')
+    parser.add_argument("--split_n", type=int, default=1, help="split number starts from 1")
+    parser.add_argument("--n_of_splits", type=int, default=1, help="How many times we divided the data")
 
     args = parser.parse_args()
     base_image_folder = args.img_folder
@@ -72,6 +75,8 @@ if __name__ == '__main__':
         with concurrent.futures.ProcessPoolExecutor(cpus) as pool:
             pool.map(parallel_process_scenes2, args_parallel)
     else:
+        print(f"scenes from {np.ceil((args.split_n-1)*len(scenes)/args.n_of_splits)} to {np.ceil((args.split_n)*len(scenes)/args.n_of_splits)} of {len(scenes)}")
+        scenes = np.array_split(scenes, args.n_of_splits)[args.split_n-1]
         for scene in scenes:
             process_scenes(scene, smplx_models, CLIFF_SCALE_FACTOR_BBOX, downsample_mat)
 
