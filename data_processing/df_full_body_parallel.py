@@ -33,7 +33,7 @@ if __name__ == '__main__':
     base_image_folder = args.img_folder
     output_folder = args.output_folder
     if not os.path.exists(output_folder):
-        os.makedirs(output_folder)
+        os.makedirs(output_folder, exist_ok=True)
 
     gt_smplx_folder = args.smplx_gt_folder
     fps = args.fps
