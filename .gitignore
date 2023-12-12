@@ -2,3 +2,4 @@ data_processing/bedlam_data
 **/__pycache__
 **/**/*.png
 **/**/seq_*
+data_processing/out_tmp
