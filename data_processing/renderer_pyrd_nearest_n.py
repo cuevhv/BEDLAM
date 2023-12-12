@@ -22,6 +22,7 @@ import os
 import remove_antialiasing
 import pyrender
 
+
 def fix_mesh_shape(mesh, vt, f, ft):
     '''
     Add missing vertices to the mesh such that it has the same number of vertices as the texture coordinates
@@ -79,7 +80,7 @@ def vertex_to_face_color(vertex_colors, faces, nearest_neighbor=False):
 class Renderer(object):
 
     def __init__(self, focal_length=600, img_w=512, img_h=512, faces=None,
-                 same_mesh_color=False):
+                 same_mesh_color=False, render_labels=True):
         os.environ['PYOPENGL_PLATFORM'] = 'egl'
         self.renderer = pyrender.OffscreenRenderer(viewport_width=img_w,
                                                    viewport_height=img_h,
@@ -88,6 +89,7 @@ class Renderer(object):
         self.focal_length = focal_length
         self.faces = faces
         self.same_mesh_color = same_mesh_color
+        self.render_labels = render_labels
 
     def render_front_view(self, verts, bg_img_rgb=None, bg_color=(0, 0, 0, 0), hbmi_texture=None):
         # Create a scene for each image and render all meshes
@@ -103,11 +105,16 @@ class Renderer(object):
         num_people = len(verts)
 
         # Create a material object from the texture image
-        texture_image = Image.open("bedlam_data/body_models/smplx/models/smplx/smpl_colorcoded_test.png").convert('RGB')
+        texture_image = Image.open("bedlam_data/body_models/smplx/models/smplx/smpl_colorcoded_1.png").convert('RGB')
+        texture_image = Image.open("bedlam_data/body_models/smplx/models/smplx/texture.png").convert('RGB')
+        # texture_image = Image.open("/home/hcuevas/Documents/work/gen_bedlam/external_repos/emdb/SMPL_python_v.1.1.0/smpl/smpl_uv_20200910/smpl_uv_20200910.png").convert('RGB')
         material = SimpleMaterial(image=texture_image, diffuse=[1.0, 1.0, 1.0, 1.0])
 
         time_s = time.time()
-        with open("bedlam_data/body_models/smplx/models/smplx/smplx_uv_meshcapade.obj", "r") as f:
+        smpl_obj_file = "bedlam_data/body_models/smplx/models/smplx/smplx_uv_meshcapade.obj"
+        # smpl_obj_file = "bedlam_data/body_models/smplx/models/smplx/smpl_uv.obj"
+        # smpl_obj_file = "/home/hcuevas/Documents/work/gen_bedlam/external_repos/emdb/SMPL_python_v.1.1.0/smpl/smpl_uv_20200910/smpl_uv.obj"
+        with open(smpl_obj_file, "r") as f:
             x = trimesh.exchange.obj.load_obj(f)
             # print(x.keys())
 
@@ -128,13 +135,18 @@ class Renderer(object):
                 if hbmi_texture[n] is not None:
                     main_path = "/ps/archive/bedlam/render/textures/smplx_textures_clothing_2048_20220905a"
                     texture_image = Image.open(os.path.join(main_path, hbmi_texture[n])+".png").split()[-1].convert("RGB")
+                # texture_image = np.array(texture_image)
+                # texture_image[:,:,[0,2]] = 0
+                # texture_image[:,:,[1]] = 255
+                # texture_image = Image.fromarray(texture_image).convert("RGB")
                 material = SimpleMaterial(image=texture_image, diffuse=[1.0, 1.0, 1.0, 1.0])
                 time_s = time.time()
                 texture_visuals = TextureVisuals(uv=uv, image=texture_image, material=material)
                 colors = texture_visuals.material.to_color(uv)
                 # print(np.unique(colors, return_index=True))
                 face_colors = vertex_to_face_color(colors, new_faces, nearest_neighbor=True)
-                face_colors[..., 1] = n+1
+                if self.render_labels:
+                    face_colors[..., 1] = n+1
                 mesh.visual = trimesh.visual.color.ColorVisuals(mesh=mesh, face_colors=face_colors)
 
             else:
